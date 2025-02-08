@@ -106,7 +106,11 @@ fn start_command() {
     println!("Max Sell Retries: {}\n", config.max_sell_retries);
 
     println!("==================== 🥥 Monitor online transactions ====================");
+    // TODO: Listen to pump.fun transactions on the solana network
 
+    // TODO: Find transactions and print it
+
+    // TODO: Buy it
 }
 
 
