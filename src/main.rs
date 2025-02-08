@@ -20,34 +20,19 @@ fn main() {
         .author("Abandon Inc. <tom@abandon.ai>")
         .about("Solana Pump.fun Clipper Bot")
         .subcommand(Command::new("start").about("Start the bot"))
-        .subcommand(Command::new("stop").about("Stop the bot"))
         .subcommand(Command::new("status").about("Check bot status"))
         .subcommand(Command::new("config").about("Configure the bot"))
-        .subcommand(
-            Command::new("logs")
-                .about("View logs")
-                .arg(Arg::new("tail").action(clap::ArgAction::SetTrue)),
-        )
         .get_matches();
 
     match matches.subcommand() {
         Some(("start", _)) => {
             start_command();
         }
-        Some(("stop", _)) => {
-            println!("==================== 🥥 Stopped coconut-bot Bot! ====================");
-        }
         Some(("status", _)) => {
             println!("==================== 🥥 coconut-bot Bot Status ====================");
         }
         Some(("config", _)) => {
             config_command();
-        }
-        Some(("logs", sub_m)) => {
-            println!("==================== 🥥 coconut-bot Bot Logs! ====================");
-            if sub_m.contains_id("tail") {
-                println!("Tail logs enabled");
-            }
         }
         _ => {
             println!("No valid command provided.");
