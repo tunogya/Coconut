@@ -4,3 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+clap = { version = "4.5.28", features = ["derive"] }
+dotenv = "0.15"
+solana-sdk = { version = "2.1.13", features = ["full"] }
+solana-client = "2.1.13"
+base58 = "0.2.0"
