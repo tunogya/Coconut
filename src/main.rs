@@ -15,7 +15,7 @@ fn main() {
     // load .env file
     dotenv().ok();
 
-    let matches = Command::new("Coconut")
+    let matches = Command::new("coconut-bot")
         .version("1.0")
         .author("Abandon Inc. <tom@abandon.ai>")
         .about("Solana Pump.fun Clipper Bot")
@@ -35,16 +35,16 @@ fn main() {
             start_command();
         }
         Some(("stop", _)) => {
-            println!("==================== 🥥 Stopped Coconut Bot! ====================");
+            println!("==================== 🥥 Stopped coconut-bot Bot! ====================");
         }
         Some(("status", _)) => {
-            println!("==================== 🥥 Coconut Bot Status ====================");
+            println!("==================== 🥥 coconut-bot Bot Status ====================");
         }
         Some(("config", _)) => {
             config_command();
         }
         Some(("logs", sub_m)) => {
-            println!("==================== 🥥 Coconut Bot Logs! ====================");
+            println!("==================== 🥥 coconut-bot Bot Logs! ====================");
             if sub_m.contains_id("tail") {
                 println!("Tail logs enabled");
             }
@@ -66,11 +66,11 @@ fn start_command() {
  ░▒▓██████▓▒░ ░▒▓██████▓▒░ ░▒▓██████▓▒░ ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░   ░▒▓█▓▒░
  ";
     println!("{}", ascii_logo);
-    println!("==================== 🥥 Starting Coconut Bot! ====================");
+    println!("==================== 🥥 Starting coconut-bot Bot! ====================");
     // check config.json is existed
     let config_path = "config.json";
     if !fs::metadata(config_path).is_ok() {
-        println!("Not Find Config File. Use `coconut config` command first.");
+        println!("Not Find Config File. Use `coconut-bot config` command first.");
         return;
     }
     let private_key_base58 = env::var("SOLANA_PRIVATE_KEY")
@@ -185,7 +185,7 @@ fn config_command() {
 
  ";
     println!("{}", ascii_logo);
-    println!("==================== 🥥 Setting Coconut Bot! ====================");
+    println!("==================== 🥥 Setting coconut-bot Bot! ====================");
     let config_path = "coconut.json";
     let mut config = Config::load_from_file(config_path);
 

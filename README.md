@@ -1,4 +1,4 @@
-# Coconut 🥥 - Solana Pump.fun Clipper Bot
+# Coconut Bot 🥥 - Solana Pump.fun Clipper Bot
 
 Coconut is a command-line bot built for the **Solana** blockchain, specifically designed to interact with the **Pump.fun** platform. It automates the process of clipping, managing wallet interactions, and provides status updates and logging functionalities.
 
@@ -21,8 +21,8 @@ Coconut is a command-line bot built for the **Solana** blockchain, specifically 
 ### Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/Coconut.git
-cd Coconut
+git clone https://github.com/tunogya/coconut-bot.git
+cd coconut-bot
 ```
 
 ### Build the project
@@ -48,31 +48,31 @@ After building the project, you can run the bot using the following commands:
 Start the bot:
 
 ```bash
-./target/release/coconut start --address <your_wallet_address>
+coconut-bot start
 ```
 
 Stop the bot:
 
 ```bash
-./target/release/coconut stop
+coconut-bot stop
 ```
 
 Check bot status:
 
 ```bash
-./target/release/coconut status
+coconut-bot status
 ```
 
 Configure bot settings:
 
 ```bash
-./target/release/coconut config --set min_trade_amount=10
+coconut-bot config
 ```
 
 View logs:
 
 ```bash
-./target/release/coconut logs --tail
+coconut-bot logs --tail
 ```
 
 ## Development
