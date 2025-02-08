@@ -9,6 +9,8 @@ dependencies = [
  "base58",
  "clap",
  "dotenv",
+ "serde",
+ "serde_json",
  "solana-client",
  "solana-sdk",
 ]
