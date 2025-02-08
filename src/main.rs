@@ -80,28 +80,30 @@ fn start_command() {
         .expect("Failed to decode Base58 private key");
     let keypair = Keypair::from_bytes(&private_key_bytes).expect("Invalid private key");
     let public_key = keypair.pubkey();
-    println!("Public Key: {}", public_key);
+    println!("Public Key: {}\n", public_key);
     let rpc_url = "https://api.mainnet-beta.solana.com"; // 根据需求选择RPC节点
     let client = RpcClient::new(rpc_url.to_string());
 
     match client.get_balance(&public_key) {
         Ok(balance) => {
-            println!("Account Balance: {} SOL", balance as f64 / 1_000_000_000.0);
+            println!("Account Balance: {} SOL\n", balance as f64 / 1_000_000_000.0);
         }
         Err(e) => {
-            eprintln!("Failed to get balance: {}", e);
+            eprintln!("Failed to get balance: {}\n", e);
         }
     }
 
-    // get PRIVATE_KEY from .env SOLANA_PRIVATE_KEY
-
-    // get pubkey from PRIVATE_KEY
-
-    // get sol balance
-
-    // get config setting
-
-    //
+    let config = Config::load_from_file(config_path);
+    println!("Buy Amount: {}\n", config.buy_amount);
+    println!("Jito Fee: {}\n", config.jito_fee);
+    println!("Price Check Interval: {}\n", config.price_check_interval);
+    println!("Take Profit: {}\n", config.take_profit);
+    println!("Stop Loss: {}\n", config.stop_loss);
+    println!("Sell Slippage: {}\n", config.sell_slippage);
+    println!("Skip Selling If Lost More Than: {}\n", config.skip_selling_if_lost_more_than);
+    println!("Price Check Duration: {}\n", config.price_check_duration);
+    println!("Auto Sell: {}\n", config.auto_sell);
+    println!("Max Sell Retries: {}\n", config.max_sell_retries);
 }
 
 
