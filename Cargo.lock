@@ -3,19 +3,6 @@
 version = 4
 
 [[package]]
-name = "Coconut"
-version = "0.1.0"
-dependencies = [
- "base58",
- "clap",
- "dotenv",
- "serde",
- "serde_json",
- "solana-client",
- "solana-sdk",
-]
-
-[[package]]
 name = "Inflector"
 version = "0.11.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -772,6 +759,19 @@ name = "clap_lex"
 version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f46ad14479a25103f283c0f10005961cf086d8dc42205bb44c46ac563475dca6"
+
+[[package]]
+name = "coconut-bot"
+version = "0.1.0"
+dependencies = [
+ "base58",
+ "clap",
+ "dotenv",
+ "serde",
+ "serde_json",
+ "solana-client",
+ "solana-sdk",
+]
 
 [[package]]
 name = "colorchoice"

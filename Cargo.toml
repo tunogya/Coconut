@@ -1,7 +1,15 @@
 [package]
-name = "Coconut"
+name = "coconut-bot"
 version = "0.1.0"
 edition = "2021"
+authors = ["Abandon Inc. <tom@abandon.ai>"]
+license = "MIT OR Apache-2.0"
+description = "🥥 Solana Pump.fun Clipper Bot"
+readme = "README.md"
+homepage = "https://github.com/tunogya/Coconut"
+repository = "https://github.com/tunogya/Coconut"
+keywords = ["solana", "cli", "Clipper"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap = { version = "4.5.28", features = ["derive"] }
