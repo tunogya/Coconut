@@ -66,7 +66,7 @@ fn start_command() {
  ░▒▓██████▓▒░ ░▒▓██████▓▒░ ░▒▓██████▓▒░ ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░   ░▒▓█▓▒░
  ";
     println!("{}", ascii_logo);
-    println!("==================== 🥥 Starting coconut-bot Bot! ====================");
+    println!("==================== 🥥 Start coconut-bot Bot! ====================");
     // check config.json is existed
     let config_path = "config.json";
     if !fs::metadata(config_path).is_ok() {
@@ -104,6 +104,9 @@ fn start_command() {
     println!("Price Check Duration: {}\n", config.price_check_duration);
     println!("Auto Sell: {}\n", config.auto_sell);
     println!("Max Sell Retries: {}\n", config.max_sell_retries);
+
+    println!("==================== 🥥 Monitor online transactions ====================");
+
 }
 
 
