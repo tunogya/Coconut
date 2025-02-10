@@ -1,33 +1,48 @@
-use std::{env};
+use std::{fs};
+use std::path::Path;
 use solana_sdk::signature::{Keypair, Signer};
 use solana_client::rpc_client::RpcClient;
-use base58::FromBase58;
-use dotenv::dotenv;
 use crate::constants;
+use serde_json::Value;
 
-pub fn main() {
+pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ascii_logo = constants::app::ASCII_LOGO;
     println!("{}", ascii_logo);
-    println!("==================== 🥥 Start coconut Bot! ====================");
-    dotenv().ok();
-    // check config.json is existed
-    let private_key_base58 = env::var("SOLANA_PRIVATE_KEY")
-        .expect("SOLANA_PRIVATE_KEY Not Found");
-    let private_key_bytes = private_key_base58
-        .from_base58()
-        .expect("Failed to decode Base58 private key");
-    let keypair = Keypair::from_bytes(&private_key_bytes).expect("Invalid private key");
-    let public_key = keypair.pubkey();
-    println!("Public Key: {}\n", public_key);
-    let rpc_url = "https://api.mainnet-beta.solana.com"; // 根据需求选择RPC节点
-    let client = RpcClient::new(rpc_url.to_string());
-
-    match client.get_balance(&public_key) {
-        Ok(balance) => {
-            println!("Account Balance: {} SOL\n", balance as f64 / 1_000_000_000.0);
-        }
-        Err(e) => {
-            eprintln!("Failed to get balance: {}\n", e);
-        }
+    println!("==================== 🥥 Check Coconut Bot Config ====================");
+    // Check coconut.json file first
+    let config_path = "coconut.json";
+    if !Path::new(config_path).exists() {
+        return Err("🥥 You need init this bot first: coconut init".into());
     }
+
+    // Read and parse coconut.json
+    let config_content = fs::read_to_string(config_path)?;
+    let config: Value = serde_json::from_str(&config_content)?;
+
+    // Validate config values
+    let private_key = config["private_key"].as_str()
+        .ok_or("Private key not found in config")?;
+    let public_key = config["public_key"].as_str()
+        .ok_or("Public key not found in config")?;
+    let config_rpc_url = config["rpc_url"].as_str()
+        .ok_or("RPC URL not found in config")?;
+
+    // Check if private key and public key match
+    let keypair = Keypair::from_base58_string(private_key);
+    let derived_public_key = keypair.pubkey().to_string();
+    if derived_public_key != public_key {
+        return Err("🥥 Private key and public key do not match".into());
+    }
+
+    println!("🥥 Public Key: https://solscan.io/account/{}", public_key);
+    println!("🥥 RPC URL: {}", config_rpc_url);
+
+    let client = RpcClient::new(config_rpc_url.to_string());
+
+    let balance = client.get_balance(&keypair.pubkey())?;
+    println!("🥥 Bot Balance: {} SOL", balance as f64 / 1_000_000_000.0);
+
+    println!("==================== 🥥 Start Coconut Bot! ====================");
+
+    Ok(())
 }

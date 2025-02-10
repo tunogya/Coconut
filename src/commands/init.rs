@@ -15,7 +15,8 @@ pub fn main() {
 
         let config = serde_json::json!({
             "private_key": private_key_base58,
-            "public_key": keypair.pubkey().to_string()
+            "public_key": keypair.pubkey().to_string(),
+            "rpc_url": "https://api.mainnet-beta.solana.com",
         });
 
         fs::write(

@@ -27,7 +27,7 @@ fn main() {
             commands::init::main();
         }
         Some(("start", _)) => {
-            commands::start::main();
+            commands::start::main().expect("Success");
         }
         Some(("stop", _)) => {
             commands::stop::main();
