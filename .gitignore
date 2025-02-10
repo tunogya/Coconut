@@ -3,3 +3,4 @@
 .env
 .env.*
 config.json
+/coconut.json

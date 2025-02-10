@@ -765,6 +765,7 @@ name = "coconut"
 version = "0.1.0"
 dependencies = [
  "base58",
+ "bs58",
  "clap",
  "dotenv",
  "serde",

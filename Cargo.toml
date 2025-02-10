@@ -19,3 +19,4 @@ solana-client = "2.1.13"
 base58 = "0.2.0"
 serde_json = "1.0.138"
 serde = { version = "1.0.217", features = ["derive"] }
+bs58 = "0.5.1"
