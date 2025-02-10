@@ -5,7 +5,7 @@ use std::path::Path;
 use bs58;
 use crate::constants;
 
-pub fn main() {
+pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config_path = "coconut.json";
     let ascii_logo = constants::app::ASCII_LOGO;
     if !Path::new(config_path).exists() {
@@ -27,8 +27,7 @@ pub fn main() {
         println!("==================== 🥥 Init Coconut Bot ====================");
         println!("🥥 New Solana account created. Check 'coconut.json' for details.");
     } else {
-        println!("{}", ascii_logo);
-        println!("==================== 🥥 Init Coconut Bot ====================");
-        println!("🥥 You already have a config file in this folder!");
+        return Err("🥥 You already have a config file in this folder!".into());
     }
+    Ok(())
 }

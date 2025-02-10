@@ -24,10 +24,10 @@ fn main() {
 
     match matches.subcommand() {
         Some(("init", _)) => {
-            commands::init::main();
+            commands::init::main().expect("");
         }
         Some(("start", _)) => {
-            commands::start::main().expect("Success");
+            commands::start::main().expect("");
         }
         Some(("stop", _)) => {
             commands::stop::main();
