@@ -1,4 +1,4 @@
-# Coconut Bot 🥥 - Solana Pump.fun Clipper Bot
+# Coconut 🥥 - Solana Pump.fun Clipper Bot
 
 Coconut is a command-line bot built for the **Solana** blockchain, specifically designed to interact with the **Pump.fun** platform. It automates the process of clipping, managing wallet interactions, and provides status updates and logging functionalities.
 
