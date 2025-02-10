@@ -1,13 +1,6 @@
-use clap::Command;
+mod commands;
 
-mod start_cmd;
-mod init_cmd;
-mod stop_cmd;
-mod ps_cmd;
-mod sell_cmd;
-mod logs_cmd;
-mod config_cmd;
-mod balance_cmd;
+use clap::Command;
 
 fn main() {
     let matches = Command::new("coconut")
@@ -30,28 +23,28 @@ fn main() {
 
     match matches.subcommand() {
         Some(("init", _)) => {
-            init_cmd::main();
+            commands::init::main();
         }
         Some(("start", _)) => {
-            start_cmd::main();
+            commands::start::main();
         }
         Some(("stop", _)) => {
-            stop_cmd::main();
+            commands::stop::main();
         }
         Some(("ps", _)) => {
-            ps_cmd::main();
+            commands::ps::main();
         }
         Some(("sell", _)) => {
-            sell_cmd::main();
+            commands::sell::main();
         }
         Some(("logs", _)) => {
-            logs_cmd::main();
+            commands::logs::main();
         }
         Some(("config", _)) => {
-            config_cmd::main();
+            commands::config::main();
         }
         Some(("balance", _)) => {
-            balance_cmd::main();
+            commands::balance::main();
         }
         _ => {
             println!("No valid command provided.");
