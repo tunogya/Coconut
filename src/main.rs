@@ -8,17 +8,17 @@ fn main() {
         .author("tunogya <tom@abandon.ai>")
         .about("Solana Pump.fun Sniper Bot")
         // manage the tasks
-        .subcommand(Command::new("init").about("Init config of the bot"))
-        .subcommand(Command::new("start").about("Start buying and selling"))
-        .subcommand(Command::new("stop").about("Stop buying more"))
+        .subcommand(Command::new("init").about("Initialize bot configuration"))
+        .subcommand(Command::new("start").about("Start trading bot"))
+        .subcommand(Command::new("stop").about("Stop trading bot"))
         // manage the orders
-        .subcommand(Command::new("ps").about("List all orders"))
-        .subcommand(Command::new("sell").about("Sell all orders manually"))
-        .subcommand(Command::new("logs").about("Get logs"))
+        .subcommand(Command::new("ps").about("Show active orders"))
+        .subcommand(Command::new("sell").about("Manually sell all positions"))
+        .subcommand(Command::new("logs").about("Display bot logs"))
         // manage the configs
-        .subcommand(Command::new("config").about("Get the config of the bot"))
+        .subcommand(Command::new("config").about("Show bot configuration"))
         // manage the wallets
-        .subcommand(Command::new("balance").about("Get the balance of the bot"))
+        .subcommand(Command::new("balance").about("Show wallet balance"))
         .get_matches();
 
     match matches.subcommand() {
