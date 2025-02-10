@@ -1,4 +1,4 @@
-mod commands;
+mod cmd;
 
 use clap::Command;
 
@@ -23,28 +23,28 @@ fn main() {
 
     match matches.subcommand() {
         Some(("init", _)) => {
-            commands::init::main();
+            cmd::init::main();
         }
         Some(("start", _)) => {
-            commands::start::main();
+            cmd::start::main();
         }
         Some(("stop", _)) => {
-            commands::stop::main();
+            cmd::stop::main();
         }
         Some(("ps", _)) => {
-            commands::ps::main();
+            cmd::ps::main();
         }
         Some(("sell", _)) => {
-            commands::sell::main();
+            cmd::sell::main();
         }
         Some(("logs", _)) => {
-            commands::logs::main();
+            cmd::logs::main();
         }
         Some(("config", _)) => {
-            commands::config::main();
+            cmd::config::main();
         }
         Some(("balance", _)) => {
-            commands::balance::main();
+            cmd::balance::main();
         }
         _ => {
             println!("No valid command provided.");
