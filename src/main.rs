@@ -1,7 +1,4 @@
 use clap::Command;
-use solana_sdk::signature::Signer;
-use base58::FromBase58;
-use std::fmt::Display;
 
 mod start_cmd;
 mod init_cmd;

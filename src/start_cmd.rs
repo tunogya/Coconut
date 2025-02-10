@@ -1,4 +1,4 @@
-use std::{env, fs};
+use std::{env};
 use solana_sdk::signature::{Keypair, Signer};
 use solana_client::rpc_client::RpcClient;
 use base58::FromBase58;
