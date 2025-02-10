@@ -1,14 +1,6 @@
-# Coconut 🥥 - Solana Pump.fun Clipper Bot
+# Coconut 🥥 - Solana Pump.fun Bot
 
 Coconut is a command-line bot built for the **Solana** blockchain, specifically designed to interact with the **Pump.fun** platform. It automates the process of clipping, managing wallet interactions, and provides status updates and logging functionalities.
-
-## Features
-
-- **Start/Stop**: Start and stop the bot to begin or end clipping operations.
-- **Status**: View the current status of the bot, including running processes and wallet information.
-- **Configuration**: Customize bot settings like trade amount thresholds.
-- **Logging**: Persistent logging of bot activities stored in a local SQLite database.
-- **Private Key Management**: Secure handling of private keys stored in a `.env` file.
 
 ## Installation
 
@@ -55,24 +47,6 @@ Stop the bot:
 
 ```bash
 coconut-bot stop
-```
-
-Check bot status:
-
-```bash
-coconut-bot status
-```
-
-Configure bot settings:
-
-```bash
-coconut-bot config
-```
-
-View logs:
-
-```bash
-coconut-bot logs --tail
 ```
 
 ## Development
