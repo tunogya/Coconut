@@ -4,8 +4,14 @@ use solana_sdk::signature::{Keypair, Signer};
 use solana_client::rpc_client::RpcClient;
 use crate::constants;
 use serde_json::Value;
+use tokio::{task, time};
+use tokio::sync::mpsc;
+use std::time::Duration;
+use tokio_tungstenite::connect_async;
+use std::collections::HashMap;
 
-pub fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let ascii_logo = constants::app::ASCII_LOGO;
     println!("{}", ascii_logo);
     println!("==================== 🥥 Check Coconut Bot Config ====================");
@@ -24,7 +30,7 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
         .ok_or("Private key not found in config")?;
     let public_key = config["public_key"].as_str()
         .ok_or("Public key not found in config")?;
-    let config_rpc_url = config["rpc_url"].as_str()
+    let rpc_url = config["rpc_url"].as_str()
         .ok_or("RPC URL not found in config")?;
 
     // Check if private key and public key match
@@ -35,14 +41,52 @@ pub fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     println!("🥥 Public Key: https://solscan.io/account/{}", public_key);
-    println!("🥥 RPC URL: {}", config_rpc_url);
+    println!("🥥 RPC URL: {}", rpc_url);
 
-    let client = RpcClient::new(config_rpc_url.to_string());
+    let client = RpcClient::new(rpc_url.to_string());
 
     let balance = client.get_balance(&keypair.pubkey())?;
     println!("🥥 Bot Balance: {} SOL", balance as f64 / 1_000_000_000.0);
 
     println!("==================== 🥥 Start Coconut Bot! ====================");
 
+    let (tx, rx) = mpsc::channel(100);
+
+    let buy_task = task::spawn(buy_loop(config.clone(), tx.clone()));
+    let sell_task = task::spawn(sell_loop(config.clone(), rx));
+
+    tokio::try_join!(buy_task, sell_task).unwrap();
+
     Ok(())
+}
+
+async fn buy_loop(config: Value, tx: mpsc::Sender<Order>) {
+    let ws_rpc_url = config["ws_rpc_url"].as_str();
+    // create a websocket connection
+    let (stream, response) = connect_async(ws_rpc_url.unwrap()).await.unwrap();
+
+    println!("🥥 WebSocket connect success...");
+
+    println!("🥥 WebSocket response: {:?}", response);
+}
+
+async fn sell_loop(config: Value, mut rx: mpsc::Receiver<Order>) {
+    let mut orders: HashMap<u32, Order> = HashMap::new();
+
+    while let Some(order) = rx.recv().await {
+        orders.insert(order.id, order);
+    }
+
+    loop {
+        println!("check for sell");
+        time::sleep(Duration::from_secs(5)).await;
+    }
+}
+
+#[derive(Debug, Clone)]
+struct Order {
+    id: u32,
+    buy_price: f64,
+    target_price: f64,
+    stop_loss: f64,
 }

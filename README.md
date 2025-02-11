@@ -13,8 +13,8 @@ Coconut is a command-line bot built for the **Solana** blockchain, specifically 
 ### Clone the repository
 
 ```bash
-git clone https://github.com/tunogya/coconut-bot.git
-cd coconut-bot
+git clone https://github.com/tunogya/coconut.git
+cd coconut
 ```
 
 ### Build the project
@@ -40,13 +40,13 @@ After building the project, you can run the bot using the following commands:
 Start the bot:
 
 ```bash
-coconut-bot start
+coconut start
 ```
 
 Stop the bot:
 
 ```bash
-coconut-bot stop
+coconut stop
 ```
 
 ## Development

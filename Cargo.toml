@@ -1,13 +1,13 @@
 [package]
-name = "coconut"
+name = "Coconut"
 version = "0.1.0"
 edition = "2021"
-authors = ["Abandon Inc. <tom@abandon.ai>"]
+authors = ["tunogya <tunogya@gmail.com>"]
 license = "MIT OR Apache-2.0"
 description = "🥥 Solana Pump.fun Bot"
 readme = "README.md"
-homepage = "https://github.com/tunogya/Coconut"
-repository = "https://github.com/tunogya/Coconut"
+homepage = "https://github.com/tunogya/coconut"
+repository = "https://github.com/tunogya/coconut"
 keywords = ["solana", "cli", "pumpfun"]
 categories = ["command-line-utilities"]
 
@@ -15,7 +15,8 @@ categories = ["command-line-utilities"]
 clap = { version = "4.5.28", features = ["derive"] }
 solana-sdk = { version = "2.1.13", features = ["full"] }
 solana-client = "2.1.13"
-base58 = "0.2.0"
 serde_json = "1.0.138"
 serde = { version = "1.0.217", features = ["derive"] }
 bs58 = "0.5.1"
+tokio = "1.43.0"
+tokio-tungstenite = "0.26.1"
