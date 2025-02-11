@@ -7,8 +7,12 @@ use serde_json::Value;
 use tokio::{task, time};
 use tokio::sync::mpsc;
 use std::time::Duration;
-use tokio_tungstenite::connect_async;
 use std::collections::HashMap;
+use url::Url;
+use futures_util::{stream::StreamExt, SinkExt};
+use tokio_tungstenite::tungstenite::Message;
+use tokio_tungstenite::connect_async;
+use tungstenite::Utf8Bytes;
 
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -61,13 +65,59 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn buy_loop(config: Value, tx: mpsc::Sender<Order>) {
-    let ws_rpc_url = config["ws_rpc_url"].as_str();
-    // create a websocket connection
-    let (stream, response) = connect_async(ws_rpc_url.unwrap()).await.unwrap();
+    let ws_rpc_url = match config["ws_rpc_url"].as_str() {
+        Some(url) => url,
+        None => {
+            eprintln!("🥥 Missing ws_rpc_url in config");
+            return;
+        }
+    };
 
-    println!("🥥 WebSocket connect success...");
+    let url = match Url::parse(ws_rpc_url) {
+        Ok(url) => url,
+        Err(e) => {
+            eprintln!("🥥 Invalid WebSocket URL: {}", e);
+            return;
+        }
+    };
 
-    println!("🥥 WebSocket response: {:?}", response);
+    let (mut ws_stream, _) = match connect_async(url.as_str()).await {
+        Ok((ws, _)) => (ws, ()), // Only get WebSocketStream, ignore Response
+        Err(e) => {
+            eprintln!("🥥 Failed to connect: {}", e);
+            return;
+        }
+    };
+
+    let subscription_message = serde_json::json!({
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "programSubscribe",
+        "params": [
+            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+            {
+                "encoding": "base64",
+                "commitment": "finalized"
+            }
+        ]
+    });
+
+    if let Err(e) = ws_stream.send(Message::Text(Utf8Bytes::from(subscription_message.to_string()))).await {
+        eprintln!("🥥 Failed to send message: {}", e);
+        return;
+    }
+    println!("🥥 Send programSubscribe success!");
+
+    while let Some(msg) = ws_stream.next().await {
+        match msg {
+            Ok(Message::Text(text)) => println!("Received: {}", text),
+            Ok(_) => println!("🥥 Received non-text message"),
+            Err(e) => {
+                eprintln!("🥥 Error receiving message: {}", e);
+                break;
+            }
+        }
+    }
 }
 
 async fn sell_loop(config: Value, mut rx: mpsc::Receiver<Order>) {

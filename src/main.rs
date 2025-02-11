@@ -7,7 +7,7 @@ fn main() {
     let matches = Command::new("coconut")
         .version("1.0")
         .author("tunogya <tom@abandon.ai>")
-        .about("Solana Pump.fun Sniper Bot")
+        .about("Solana Pump.fun Bot")
         // manage the tasks
         .subcommand(Command::new("init").about("Initialize bot configuration"))
         .subcommand(Command::new("start").about("Start trading bot"))
