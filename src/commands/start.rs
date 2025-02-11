@@ -117,11 +117,27 @@ async fn buy_loop(config: Value, tx: mpsc::Sender<Order>) {
     }
     println!("🥥 Send programSubscribe success!");
 
+    let mut is_buying = false;
+    let mut is_bought = false;
+
     while let Some(msg) = ws_stream.next().await {
         match msg {
             Ok(Message::Text(text)) => {
-                // {"jsonrpc":"2.0","method":"programNotification","params":{"result":{"context":{"slot":319931865},"value":{"pubkey":"B4tQwAZt4dG8f8QMvZmSfw7GKwzGaiWJcoif52bWqJdX","account":{"lamports":17035577720,"data":["F7f4N2DYrGAlvgrHc24CAEgpd/MKAAAAJSb4euJvAQBIfVP3AwAAAACAxqR+jQMAAA==","base64"],"owner":"6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P","executable":false,"rentEpoch":18446744073709551615,"space":49}}},"subscription":57587}}
-                println!("Received: {}", text)
+                let json: Value = match serde_json::from_str(&text) {
+                    Ok(json) => json,
+                    Err(e) => {
+                        eprintln!("🥥 Failed to parse message: {}", e);
+                        break;
+                    }
+                };
+                let signature = json["params"]["result"]["signature"].as_str().unwrap();
+                let logs = json["params"]["result"]["value"]["logs"].as_array().unwrap();
+
+                let is_mint = logs.iter().filter(|log| log.as_str().unwrap().contains("MintTo")).count() > 0;
+                if (is_mint && !is_buying && !is_bought) {
+                    is_buying = true;
+                    println!("🥥 MintTo detected, start buying!");
+                }
             }
             Ok(_) => println!("🥥 Received non-text message"),
             Err(e) => {
