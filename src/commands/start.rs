@@ -1,18 +1,18 @@
-use std::{fs};
-use std::path::Path;
-use solana_sdk::signature::{Keypair, Signer};
-use solana_client::rpc_client::RpcClient;
 use crate::constants;
-use serde_json::Value;
-use tokio::{task, time};
-use tokio::sync::mpsc;
-use std::time::Duration;
-use std::collections::HashMap;
-use url::Url;
 use futures_util::{stream::StreamExt, SinkExt};
-use tokio_tungstenite::tungstenite::Message;
+use serde_json::Value;
+use solana_client::rpc_client::RpcClient;
+use solana_sdk::signature::{Keypair, Signer};
+use std::collections::HashMap;
+use std::fs;
+use std::path::Path;
+use std::time::Duration;
+use tokio::sync::mpsc;
+use tokio::{task, time};
 use tokio_tungstenite::connect_async;
+use tokio_tungstenite::tungstenite::Message;
 use tungstenite::Utf8Bytes;
+use url::Url;
 
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -30,11 +30,14 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config: Value = serde_json::from_str(&config_content)?;
 
     // Validate config values
-    let private_key = config["private_key"].as_str()
+    let private_key = config["private_key"]
+        .as_str()
         .ok_or("Private key not found in config")?;
-    let public_key = config["public_key"].as_str()
+    let public_key = config["public_key"]
+        .as_str()
         .ok_or("Public key not found in config")?;
-    let rpc_url = config["rpc_url"].as_str()
+    let rpc_url = config["rpc_url"]
+        .as_str()
         .ok_or("RPC URL not found in config")?;
 
     // Check if private key and public key match
@@ -92,17 +95,23 @@ async fn buy_loop(config: Value, tx: mpsc::Sender<Order>) {
     let subscription_message = serde_json::json!({
         "jsonrpc": "2.0",
         "id": 1,
-        "method": "programSubscribe",
+        "method": "logsSubscribe",
         "params": [
-            "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
             {
-                "encoding": "base64",
+                "mentions": ["6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"]
+            },
+            {
                 "commitment": "finalized"
             }
         ]
     });
 
-    if let Err(e) = ws_stream.send(Message::Text(Utf8Bytes::from(subscription_message.to_string()))).await {
+    if let Err(e) = ws_stream
+        .send(Message::Text(Utf8Bytes::from(
+            subscription_message.to_string(),
+        )))
+        .await
+    {
         eprintln!("🥥 Failed to send message: {}", e);
         return;
     }
@@ -110,7 +119,10 @@ async fn buy_loop(config: Value, tx: mpsc::Sender<Order>) {
 
     while let Some(msg) = ws_stream.next().await {
         match msg {
-            Ok(Message::Text(text)) => println!("Received: {}", text),
+            Ok(Message::Text(text)) => {
+                // {"jsonrpc":"2.0","method":"programNotification","params":{"result":{"context":{"slot":319931865},"value":{"pubkey":"B4tQwAZt4dG8f8QMvZmSfw7GKwzGaiWJcoif52bWqJdX","account":{"lamports":17035577720,"data":["F7f4N2DYrGAlvgrHc24CAEgpd/MKAAAAJSb4euJvAQBIfVP3AwAAAACAxqR+jQMAAA==","base64"],"owner":"6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P","executable":false,"rentEpoch":18446744073709551615,"space":49}}},"subscription":57587}}
+                println!("Received: {}", text)
+            }
             Ok(_) => println!("🥥 Received non-text message"),
             Err(e) => {
                 eprintln!("🥥 Error receiving message: {}", e);
