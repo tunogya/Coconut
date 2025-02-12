@@ -7,3 +7,17 @@ pub const ASCII_LOGO: &str = "
 ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░  ░▒▓█▓▒░
  ░▒▓██████▓▒░ ░▒▓██████▓▒░ ░▒▓██████▓▒░ ░▒▓██████▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░   ░▒▓█▓▒░
  ";
+
+pub const LOGS_SUBSCRIBE_MESSAGE: &str = r#"{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "logsSubscribe",
+    "params": [
+    {
+        "mentions": ["6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"]
+    },
+    {
+        "commitment": "finalized"
+    }
+    ]
+}"#;

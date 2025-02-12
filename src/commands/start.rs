@@ -113,23 +113,11 @@ async fn buy_loop(config: Value, tx: mpsc::Sender<Order>) {
         }
     };
 
-    let subscription_message = serde_json::json!({
-        "jsonrpc": "2.0",
-        "id": 1,
-        "method": "logsSubscribe",
-        "params": [
-            {
-                "mentions": ["6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"]
-            },
-            {
-                "commitment": "finalized"
-            }
-        ]
-    });
+    let subscription_message = constants::app::LOGS_SUBSCRIBE_MESSAGE;
 
     if let Err(e) = ws_stream
         .send(Message::Text(Utf8Bytes::from(
-            subscription_message.to_string(),
+            subscription_message,
         )))
         .await
     {
@@ -144,56 +132,88 @@ async fn buy_loop(config: Value, tx: mpsc::Sender<Order>) {
     while let Some(msg) = ws_stream.next().await {
         match msg {
             Ok(Message::Text(text)) => {
-                if let Ok(json) = serde_json::from_str::<Value>(&text) {
-                    if let (Some(signature), Some(logs)) = (
-                        json["params"]["result"]["signature"].as_str(),
-                        json["params"]["result"]["value"]["logs"].as_array(),
-                    ) {
-                        if logs.iter().any(|log| log.as_str().map_or(false, |s| s.contains("MintTo")))
-                            && !is_buying
-                            && !is_bought
-                        {
-                            is_buying = true;
-                            println!("🥥 Found new token on pump.fun, starting purchase!");
-                            println!("Signature: {}", signature);
-
-                            if let Ok(signature_parsed) = signature.parse() {
-                                if let Ok(tx_result) =
-                                    client.get_transaction(&signature_parsed, UiTransactionEncoding::JsonParsed)
-                                {
-                                    if let EncodedTransaction::Json(tx_json) = tx_result.transaction.transaction {
-                                        match tx_json.message {
-                                            UiMessage::Parsed(parsed_msg) => {
-                                                let account_keys = parsed_msg.account_keys;
-                                                let wallet = account_keys[0].to_string();
-                                                let mint = account_keys[1].to_string();
-                                                let token_pool_ata = account_keys[4].to_string();
-                                                println!("wallet: {}", wallet);
-                                                println!("mint: {}", mint);
-                                                println!("token_pool_ata: {}", token_pool_ata);
-                                            }
-                                            UiMessage::Raw(_) => {
-                                                // 如果你使用的是 Raw 编码，处理 Raw 消息
-                                                println!("Raw message encountered, no `account_keys` available.");
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    eprintln!("🥥 Failed to parse message");
-                    break;
-                }
+                handle_stream_logs(text, &mut is_buying , &mut is_bought);
             }
-            Ok(_) => println!("🥥 Received non-text message"),
+            Ok(msg) => println!("🥥 Received non-text message: {:?}", msg),
             Err(e) => {
                 eprintln!("🥥 Error receiving message: {}", e);
                 break;
             }
         }
     }
+}
+
+fn handle_stream_logs(text: Utf8Bytes, is_buying: &mut bool, is_bought: &mut bool) {
+    match serde_json::from_str::<Value>(&text) {
+        Ok(json) => {
+            if let (Some(signature), Some(logs)) = (
+                json["params"]["result"]["value"]["signature"].as_str(),
+                json["params"]["result"]["value"]["logs"].as_array(),
+            ) {
+                if logs.iter().any(|log| log.as_str().map_or(false, |s| s.contains("MintTo")))
+                    && !*is_buying
+                    && !*is_bought
+                {
+                        *is_buying = true;
+                        println!("🥥 Found new token on pump.fun, starting purchase!");
+                        println!("🥥 Signature: https://solscan.io/tx/{}", signature);
+                }
+            } else {
+                println!("🥥 Signature not found or invalid");
+            }
+        }
+        Err(e) => {
+            eprintln!("🥥 Failed to parse JSON: {}", e);
+        }
+    }
+
+        // if let (Some(signature), Some(logs)) = (
+        //     json["params"]["result"]["value"]["signature"].as_str(),
+        //     json["params"]["result"]["value"]["logs"].as_array(),
+        // ) {
+        //     println!("🥥 Signature: {}", signature);
+            // if logs.iter().any(|log| log.as_str().map_or(false, |s| s.contains("MintTo")))
+            //     && !is_buying
+            //     && !is_bought
+            // {
+            //     is_buying = true;
+            //     println!("🥥 Found new token on pump.fun, starting purchase!");
+            //     println!("Signature: {}", signature);
+            //
+            //     if let Ok(signature_parsed) = signature.parse() {
+            //         if let Ok(tx_result) =
+            //             client.get_transaction(&signature_parsed, UiTransactionEncoding::JsonParsed)
+            //         {
+            //             if let EncodedTransaction::Json(tx_json) = tx_result.transaction.transaction {
+            //                 match tx_json.message {
+            //                     UiMessage::Parsed(parsed_msg) => {
+            //                         let account_keys = parsed_msg.account_keys;
+            //                         // print account_keys
+            //                         println!("🥥 Account keys: {:?}", account_keys);
+            //
+            //                         // let wallet = account_keys[0].to_string();
+            //                         // let mint = account_keys[1].to_string();
+            //                         // let token_pool_ata = account_keys[4].to_string();
+            //                         // println!("wallet: {}", wallet);
+            //                         // println!("mint: {}", mint);
+            //                         // println!("token_pool_ata: {}", token_pool_ata);
+            //                     }
+            //                     UiMessage::Raw(_) => {
+            //                         println!("Raw message encountered, no `account_keys` available.");
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     }
+            // } else {
+            //     println!("No pump.fun log")
+            // }
+        // } else {
+        //     eprintln!("🥥 Failed to parse logs");
+        // }
+    // } else {
+    //     eprintln!("🥥 Failed to parse message");
+    // }
 }
 
 async fn sell_loop(config: Value, mut rx: mpsc::Receiver<Order>) {
