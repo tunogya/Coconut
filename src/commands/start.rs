@@ -3,6 +3,7 @@ use futures_util::{stream::StreamExt, SinkExt};
 use serde_json::Value;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::signature::{Keypair, Signer};
+use solana_transaction_status::{EncodedTransaction, UiMessage, UiTransactionEncoding};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
@@ -46,15 +47,8 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if derived_public_key != public_key {
         return Err("🥥 Private key and public key do not match".into());
     }
-
     println!("🥥 Public Key: https://solscan.io/account/{}", public_key);
     println!("🥥 RPC URL: {}", rpc_url);
-
-    let client = RpcClient::new(rpc_url.to_string());
-
-    let balance = client.get_balance(&keypair.pubkey())?;
-    println!("🥥 Bot Balance: {} SOL", balance as f64 / 1_000_000_000.0);
-
     println!("==================== 🥥 Start Coconut Bot! ====================");
 
     let (tx, rx) = mpsc::channel(100);
@@ -68,6 +62,33 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 async fn buy_loop(config: Value, tx: mpsc::Sender<Order>) {
+    let private_key = match config["private_key"].as_str() {
+        Some(private_key) => private_key,
+        None => {
+            eprintln!("🥥 Missing private_key in config");
+            return;
+        }
+    };
+    let keypair = Keypair::from_base58_string(private_key);
+    let rpc_url = match config["rpc_url"].as_str() {
+        Some(url) => url,
+        None => {
+            eprintln!("🥥 Missing rpc_url in config");
+            return;
+        }
+    };
+    let client = RpcClient::new(rpc_url.to_string());
+
+    let balance = match client.get_balance(&keypair.pubkey()) {
+        Ok(balance) => balance,
+        Err(e) => {
+            eprintln!("🥥 Failed to get balance: {}", e);
+            return;
+        }
+    };
+
+    println!("🥥 Bot Balance: {} SOL", balance as f64 / 1_000_000_000.0);
+
     let ws_rpc_url = match config["ws_rpc_url"].as_str() {
         Some(url) => url,
         None => {
@@ -123,20 +144,47 @@ async fn buy_loop(config: Value, tx: mpsc::Sender<Order>) {
     while let Some(msg) = ws_stream.next().await {
         match msg {
             Ok(Message::Text(text)) => {
-                let json: Value = match serde_json::from_str(&text) {
-                    Ok(json) => json,
-                    Err(e) => {
-                        eprintln!("🥥 Failed to parse message: {}", e);
-                        break;
-                    }
-                };
-                let signature = json["params"]["result"]["signature"].as_str().unwrap();
-                let logs = json["params"]["result"]["value"]["logs"].as_array().unwrap();
+                if let Ok(json) = serde_json::from_str::<Value>(&text) {
+                    if let (Some(signature), Some(logs)) = (
+                        json["params"]["result"]["signature"].as_str(),
+                        json["params"]["result"]["value"]["logs"].as_array(),
+                    ) {
+                        if logs.iter().any(|log| log.as_str().map_or(false, |s| s.contains("MintTo")))
+                            && !is_buying
+                            && !is_bought
+                        {
+                            is_buying = true;
+                            println!("🥥 Found new token on pump.fun, starting purchase!");
+                            println!("Signature: {}", signature);
 
-                let is_mint = logs.iter().filter(|log| log.as_str().unwrap().contains("MintTo")).count() > 0;
-                if (is_mint && !is_buying && !is_bought) {
-                    is_buying = true;
-                    println!("🥥 MintTo detected, start buying!");
+                            if let Ok(signature_parsed) = signature.parse() {
+                                if let Ok(tx_result) =
+                                    client.get_transaction(&signature_parsed, UiTransactionEncoding::JsonParsed)
+                                {
+                                    if let EncodedTransaction::Json(tx_json) = tx_result.transaction.transaction {
+                                        match tx_json.message {
+                                            UiMessage::Parsed(parsed_msg) => {
+                                                let account_keys = parsed_msg.account_keys;
+                                                let wallet = account_keys[0].to_string();
+                                                let mint = account_keys[1].to_string();
+                                                let token_pool_ata = account_keys[4].to_string();
+                                                println!("wallet: {}", wallet);
+                                                println!("mint: {}", mint);
+                                                println!("token_pool_ata: {}", token_pool_ata);
+                                            }
+                                            UiMessage::Raw(_) => {
+                                                // 如果你使用的是 Raw 编码，处理 Raw 消息
+                                                println!("Raw message encountered, no `account_keys` available.");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    eprintln!("🥥 Failed to parse message");
+                    break;
                 }
             }
             Ok(_) => println!("🥥 Received non-text message"),
