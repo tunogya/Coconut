@@ -124,7 +124,7 @@ async fn buy_loop(config: Value, tx: mpsc::Sender<Order>) {
         eprintln!("🥥 Failed to send message: {}", e);
         return;
     }
-    println!("🥥 Send programSubscribe success!");
+    println!("🥥 Subscribe programSubscribe!");
 
     let mut is_buying = false;
     let mut is_bought = false;
@@ -158,8 +158,6 @@ fn handle_stream_logs(text: Utf8Bytes, is_buying: &mut bool, is_bought: &mut boo
                         println!("🥥 Found new token on pump.fun, starting purchase!");
                         println!("🥥 Signature: https://solscan.io/tx/{}", signature);
                 }
-            } else {
-                println!("🥥 Signature not found or invalid");
             }
         }
         Err(e) => {
