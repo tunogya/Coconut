@@ -177,7 +177,7 @@ async fn buy_loop(config: Value, tx: mpsc::Sender<Order>) {
                                             }
                                         }
                                     } else {
-                                        println!("get transaction failed");
+                                        println!("Failed to get transaction: {:?}", client.get_transaction(&signature_parsed, UiTransactionEncoding::JsonParsed));
                                     }
                                 }
                             }
